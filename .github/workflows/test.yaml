@@ -1,4 +1,4 @@
-name: Test: Mirror all 7Ji repo packages to GitHub Release (AArch64)
+name: (Test) Mirror all 7Ji repo packages to GitHub Release (AArch64)
 
 # Controls when the workflow will run
 on:
