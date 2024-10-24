@@ -15,7 +15,6 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   configure:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -29,8 +28,7 @@ jobs:
         run: |
           sudo snap install yq
           echo "matrix=$(yq eval -o json '.packages | to_entries | map(.key + " " + .value)' rockchip/mirror.yaml | jq -c)" >> $GITHUB_OUTPUT
-  download:
-    # The type of runner that the job will run on
+  mirror:
     runs-on: ubuntu-latest
     name: Mirror Packages
     needs: configure
@@ -39,8 +37,36 @@ jobs:
     strategy:
       matrix:
         package: ${{ fromJSON(needs.configure.outputs.matrix) }}
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Example
+      - name: Get Package Infomation
         run: |
-          echo "${{ matrix.package }}"
+          IFS=' ' read -r package_name package_url <<< "${{ matrix.package }}"
+          echo "Package Name: $package_name"
+          echo "Package URL: $package_url"
+          # Set outputs for use in the next step
+          if [[ $package_url == GH/* ]]; then
+            echo "type=gh" >> $GITHUB_ENV
+            IFS='/' read -r user repo tag <<< "${package_url#GH/}"
+            echo "user=$user" >> $GITHUB_ENV
+            echo "repo=$repo" >> $GITHUB_ENV
+            echo "tag=$tag" >> $GITHUB_ENV
+          elif [[ $package_url == http://* || $package_url == https://* ]]; then
+            echo "type=http" >> $GITHUB_ENV
+            echo "url=$package_url" >> $GITHUB_ENV
+          else
+            echo "Unknown repository format"
+            exit 1
+          fi
+      - name: Download from GH Repository
+        if: env.type == 'gh'
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: "${{ env.user }}/${{ env.repo }}"
+          tag: "${{ env.tag }}"
+          out-file-path: 'output'
+          fileName: '*.pkg.tar.zst'
+      - name: Download via curl
+        if: env.type == 'http'
+        run: |
+          echo "Downloading from ${{ env.url }}"
+          curl -L -O "${{ env.url }}
