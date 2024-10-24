@@ -41,6 +41,6 @@ jobs:
         package: ${{ fromJSON(needs.configure.outputs.matrix) }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Preparing
+      - name: Example
         run: |
-          echo "hello world"
+          echo "${{ matrix.package }}"
