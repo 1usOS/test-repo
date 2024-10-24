@@ -24,10 +24,12 @@ jobs:
       - name: Set matrix data
         id: set-matrix
         run: |
+          echo "T1"
+          ls
+          echo "T2"
+          ls rockchip
           sudo snap install yq
           echo "matrix=$(yq eval '.packages | to_entries | map(.key) | join(",")' rockchip/mirror.yaml)" >> $GITHUB_OUTPUT
-      - name: Debug
-        run: echo "$GITHUB_OUTPUT"
   download:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
