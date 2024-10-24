@@ -26,6 +26,7 @@ jobs:
         id: set-matrix
         run: |
           sudo snap install yq
+          echo "matrix=$(yq eval '.packages | to_entries | map(.key) | join(",")' rockchip/mirror.yaml)"
           echo "matrix=$(yq eval '.packages | to_entries | map(.key) | join(",")' rockchip/mirror.yaml)" >> $GITHUB_OUTPUT
   download:
     # The type of runner that the job will run on
