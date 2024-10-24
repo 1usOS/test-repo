@@ -30,7 +30,7 @@ jobs:
           repository: '7Ji/archrepo'
           tag: 'aarch64'
           out-file-path: 'output'
-          fileName: '*.tar.zst'
+          fileName: '*.pkg.tar.zst'
 
       - name: Upload to GitHub Release
         uses: ncipollo/release-action@v1
