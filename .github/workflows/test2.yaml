@@ -59,7 +59,7 @@ jobs:
             echo "Unknown repository format"
             exit 1
           fi
-      - name: Download from GH Repository
+      - name: Download Package from GitHub Release
         if: env.type == 'gh'
         uses: robinraju/release-downloader@v1
         with:
@@ -67,9 +67,19 @@ jobs:
           tag: "${{ env.tag }}"
           out-file-path: 'output'
           fileName: "${{ env.name }}*.pkg.tar.zst"
-      - name: Download via curl
+      - name: Download Package from HTTP
         if: env.type == 'http'
         run: |
           echo "Downloading from ${{ env.url }}"
+          mkdir -p output
+          cd output
           #curl -LO "${{ env.url }}"
           echo "WIP"
+      - name: Upload Package to GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+            artifacts: "output/*"
+            tag: "aarch64"
+            makeLatest: false
+            allowUpdates: true
+            omitBody: true
