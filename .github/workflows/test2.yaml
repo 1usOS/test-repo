@@ -14,22 +14,18 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  read_yaml:
+  configure:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
           repository: 1usOS/PKGBUILDs
-
-      - name: Read mirror.yaml
-        id: read_yaml
+      - name: Set matrix data
+        id: set-matrix
         run: |
-          # Install yq for YAML parsing
           sudo snap install yq
-          
-          # Parse the YAML file
-          echo "::set-output name=packages::$(yq eval '.packages | to_entries | map(.key) | join(",")' rockchip/mirror.yaml)"
+          echo "matrix=$(yq eval '.packages | to_entries | map(.key) | join(",")' rockchip/mirror.yaml)" >> $GITHUB_OUTPUT
   download:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -38,7 +34,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        package: ${{ fromJson(needs.read_yaml.outputs.packages) }}
+        package: ${{ fromJson(needs.configure.outputs.matrix) }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
