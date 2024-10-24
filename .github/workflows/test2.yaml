@@ -38,7 +38,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        package: ${{ needs.configure.outputs.matrix }}
+        package: ${{ fromJSON(needs.configure.outputs.matrix) }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Preparing
