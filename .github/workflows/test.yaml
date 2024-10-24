@@ -16,6 +16,8 @@ on:
 jobs:
   configure:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -33,7 +35,6 @@ jobs:
         with:
             tag: "aarch64"
             removeArtifacts: true
-            makeLatest: false
             allowUpdates: true
             omitBody: true
 
