@@ -28,6 +28,15 @@ jobs:
         run: |
           sudo snap install yq
           echo "matrix=$(yq eval -o json '.packages | to_entries | map(.key + " " + .value)' rockchip/mirror.yaml | jq -c)" >> $GITHUB_OUTPUT
+      - name: Cleanup GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+            tag: "aarch64"
+            removeArtifacts: true
+            makeLatest: false
+            allowUpdates: true
+            omitBody: true
+
   mirror:
     runs-on: ubuntu-latest
     name: Mirror Packages
