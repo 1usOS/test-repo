@@ -44,6 +44,7 @@ jobs:
           echo "Package Name: $package_name"
           echo "Package URL: $package_url"
           # Set outputs for use in the next step
+          echo "name=$package_name" >> $GITHUB_ENV
           if [[ $package_url == GH/* ]]; then
             echo "type=gh" >> $GITHUB_ENV
             IFS='/' read -r user repo tag <<< "${package_url#GH/}"
@@ -64,9 +65,10 @@ jobs:
           repository: "${{ env.user }}/${{ env.repo }}"
           tag: "${{ env.tag }}"
           out-file-path: 'output'
-          fileName: '*.pkg.tar.zst'
+          fileName: "${{ env.name }}*.pkg.tar.zst"
       - name: Download via curl
         if: env.type == 'http'
         run: |
           echo "Downloading from ${{ env.url }}"
-          curl -L -O "${{ env.url }}
+          #curl -LO "${{ env.url }}"
+          echo "WIP"
