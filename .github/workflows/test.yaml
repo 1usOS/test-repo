@@ -14,6 +14,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  # Fetch the repository configuration and configure the matrix of tasks to run
   configure:
     runs-on: ubuntu-latest
     permissions:
@@ -37,7 +38,7 @@ jobs:
             removeArtifacts: true
             allowUpdates: true
             omitBody: true
-
+  # Mirror a compiled package
   mirror:
     runs-on: ubuntu-latest
     name: Mirror Packages
@@ -93,3 +94,5 @@ jobs:
             makeLatest: false
             allowUpdates: true
             omitBody: true
+  # Build a package from PKGBUILD
+  #build:
