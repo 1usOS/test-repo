@@ -81,11 +81,14 @@ jobs:
       - name: Download Package from HTTP
         if: env.type == 'http'
         run: |
-          echo "Downloading from ${{ env.url }}"
-          mkdir -p output
-          cd output
-          #curl -LO "${{ env.url }}"
-          echo "WIP"
+          echo "Fetching from ${{ env.url }}"
+          pkg_list=$(curl -sL "${{ env.url }}" | grep -v '.sig' | grep -o 'href="[^"]*"' | sed 's/href="//;s/"$//' | grep -o "^${{ env.name }}.*.pkg.tar.*")
+          for url in "${pkg_list[@]}"; do
+            dl_url="${{ env.url }}${url}"
+            echo "Downloading $dl_url"
+            curl -LO --create-dirs --output-dir "output" "$dl_url"
+          done
+          
       - name: Upload Package to GitHub Release
         uses: ncipollo/release-action@v1
         with:
