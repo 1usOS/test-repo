@@ -1,4 +1,4 @@
-name: (Test) Generate packages for rockhip (AArch64)
+name: (Test) Generate packages for raspberrypi
 
 # Controls when the workflow will run
 on:
@@ -11,6 +11,10 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
+# Environment Variables
+env:
+  target: raspberrypi
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -30,11 +34,11 @@ jobs:
         id: set-matrix
         run: |
           sudo snap install yq
-          echo "matrix=$(yq eval -o json '.packages | to_entries | map(.key + " " + .value)' rockchip/mirror.yaml | jq -c)" >> $GITHUB_OUTPUT
+          echo "matrix=$(yq eval -o json '.packages | to_entries | map(.key + " " + .value)' ${{ env.target }}/mirror.yaml | jq -c)" >> $GITHUB_OUTPUT
       - name: Cleanup GitHub Release
         uses: ncipollo/release-action@v1
         with:
-            tag: "aarch64"
+            tag: "${{ env.target }}"
             removeArtifacts: true
             allowUpdates: true
             omitBody: true
@@ -82,18 +86,17 @@ jobs:
         if: env.type == 'http'
         run: |
           echo "Fetching from ${{ env.url }}/"
-          pkg_list=$(curl -sL "${{ env.url }}/" | grep -v '.sig' | grep -o 'href="[^"]*"' | sed 's/href="//;s/"$//' | grep -o "^${{ env.name }}.*.pkg.tar.*")
-          for url in "${pkg_list[@]}"; do
-            dl_url="${{ env.url }}/${url}"
+          pkg_list=($(curl -sL "${{ env.url }}/" | grep -v '.sig' | grep -o 'href="[^"]*"' | sed 's/href="//;s/"$//' | grep -o "^${{ env.name }}.*.pkg.tar.*"))
+          for pkg in "${pkg_list[@]}"; do
+            dl_url="${{ env.url }}/${pkg}"
             echo "Downloading $dl_url"
             curl -LO --create-dirs --output-dir "output" "$dl_url"
           done
-          
       - name: Upload Package to GitHub Release
         uses: ncipollo/release-action@v1
         with:
             artifacts: "output/*"
-            tag: "aarch64"
+            tag: "${{ env.target }}"
             makeLatest: false
             allowUpdates: true
             omitBody: true
