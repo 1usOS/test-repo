@@ -81,10 +81,10 @@ jobs:
       - name: Download Package from HTTP
         if: env.type == 'http'
         run: |
-          echo "Fetching from ${{ env.url }}"
-          pkg_list=$(curl -sL "${{ env.url }}" | grep -v '.sig' | grep -o 'href="[^"]*"' | sed 's/href="//;s/"$//' | grep -o "^${{ env.name }}.*.pkg.tar.*")
+          echo "Fetching from ${{ env.url }}/"
+          pkg_list=$(curl -sL "${{ env.url }}/" | grep -v '.sig' | grep -o 'href="[^"]*"' | sed 's/href="//;s/"$//' | grep -o "^${{ env.name }}.*.pkg.tar.*")
           for url in "${pkg_list[@]}"; do
-            dl_url="${{ env.url }}${url}"
+            dl_url="${{ env.url }}/${url}"
             echo "Downloading $dl_url"
             curl -LO --create-dirs --output-dir "output" "$dl_url"
           done
