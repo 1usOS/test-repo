@@ -1,0 +1,103 @@
+name: (Test) Generate packages for multilib
+
+# Controls when the workflow will run
+on:
+  # Runs on pushes targeting the default branch
+  #push:
+    #branches: ["main"]
+  # Run the workflow every Night at 00:00 UTC
+  schedule:
+    - cron: "0 0 * * *"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # Fetch the repository configuration and configure the matrix of tasks to run
+  configure:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          repository: 1usOS/PKGBUILDs
+      - name: Set target repo
+        run: echo "target=multilib" >> $GITHUB_ENV
+      - name: Set matrix data
+        id: set-matrix
+        run: |
+          sudo snap install yq
+          echo "matrix=$(yq eval -o json '.packages | to_entries | map(.key + " " + .value)' ${{ env.target }}/mirror.yaml | jq -c)" >> $GITHUB_OUTPUT
+      - name: Cleanup GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+            tag: "${{ env.target }}"
+            removeArtifacts: true
+            allowUpdates: true
+            omitBody: true
+  # Mirror a compiled package
+  mirror:
+    runs-on: ubuntu-latest
+    name: Mirror Packages
+    continue-on-error: true
+    needs: configure
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        package: ${{ fromJSON(needs.configure.outputs.matrix) }}
+    steps:
+      - name: Get Package Infomation
+        run: |
+          IFS=' ' read -r package_name package_url <<< "${{ matrix.package }}"
+          echo "Package Name: $package_name"
+          echo "Package URL: $package_url"
+          # Set outputs for use in the next step
+          echo "name=$package_name" >> $GITHUB_ENV
+          if [[ $package_url == GH/* ]]; then
+            echo "type=gh" >> $GITHUB_ENV
+            IFS='/' read -r user repo tag <<< "${package_url#GH/}"
+            echo "user=$user" >> $GITHUB_ENV
+            echo "repo=$repo" >> $GITHUB_ENV
+            echo "tag=$tag" >> $GITHUB_ENV
+          elif [[ $package_url == http://* || $package_url == https://* ]]; then
+            echo "type=http" >> $GITHUB_ENV
+            echo "url=$package_url" >> $GITHUB_ENV
+          else
+            echo "Unknown repository format"
+            exit 1
+          fi
+      - name: Download Package from GitHub Release
+        if: env.type == 'gh'
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: "${{ env.user }}/${{ env.repo }}"
+          tag: "${{ env.tag }}"
+          out-file-path: 'output'
+          fileName: "${{ env.name }}*.pkg.tar.zst"
+      - name: Download Package from HTTP
+        if: env.type == 'http'
+        run: |
+          echo "Fetching from ${{ env.url }}/"
+          pkg_list=$(curl -sL "${{ env.url }}/" | grep -v '.sig' | grep -o 'href="[^"]*"' | sed 's/href="//;s/"$//' | grep -o "^${{ env.name }}.*.pkg.tar.*")
+          for url in "${pkg_list[@]}"; do
+            dl_url="${{ env.url }}/${url}"
+            echo "Downloading $dl_url"
+            curl -LO --create-dirs --output-dir "output" "$dl_url"
+          done
+          
+      - name: Upload Package to GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+            artifacts: "output/*"
+            tag: "aarch64"
+            makeLatest: false
+            allowUpdates: true
+            omitBody: true
+  # Build a package from PKGBUILD
+  #build:
