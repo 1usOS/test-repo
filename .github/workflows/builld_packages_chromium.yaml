@@ -41,6 +41,7 @@ jobs:
           HOME=/home/user
           cd ~
           acu rem set alarm https://github.com/archlinuxarm/PKGBUILDs
+          acu update
           acu build alarm/chromium --noconfirm
           END
           sudo chmod -R 755 rootfs/home/user
