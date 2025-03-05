@@ -40,6 +40,7 @@ jobs:
           sudo arch-chroot -u user rootfs /bin/bash <<END
           HOME=/home/user
           cd ~
+          sudo sed -i 's/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf
           acu rem set alarm https://github.com/archlinuxarm/PKGBUILDs
           acu update
           acu build alarm/chromium --noconfirm
