@@ -38,20 +38,17 @@ jobs:
       - name: (Test) Build Package
         run: |
           sudo arch-chroot -u user rootfs /bin/bash <<END
-          sudo pacman -Syyu git bc --noconfirm
-          cd /home/user
-          mkdir -p out
-          git clone https://github.com/7Ji-PKGBUILDs/usb2host.git packages
-          cd packages
-          makepkg -s --noconfirm
-          sudo cp *.pkg.tar.* ../out/
+          HOME=/home/user
+          cd ~
+          acu build https://github.com/7Ji-PKGBUILDs/mesa-panfork-git --noconfirm
+          acu build yay-bin --noconfirm
           END
           sudo chmod -R 755 rootfs/home/user
 
       - name: Upload to GitHub Release
         uses: ncipollo/release-action@v1
         with:
-            artifacts: "rootfs/home/user/out/*"
+            artifacts: "rootfs/home/user/packages/*/*"
             tag: "packages"
             makeLatest: false
             allowUpdates: true
