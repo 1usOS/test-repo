@@ -40,8 +40,11 @@ jobs:
           sudo arch-chroot -u user rootfs /bin/bash <<END
           HOME=/home/user
           cd ~
-          acu build https://github.com/7Ji-PKGBUILDs/mesa-panfork-git --noconfirm
-          acu build yay-bin --noconfirm
+          sudo sed -i 's/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf
+          cat /etc/makepkg.conf
+          acu rem set 7Ji https://github.com/7Ji-PKGBUILDs
+          acu update
+          acu build 7Ji/mesa-panfork-git --noconfirm
           END
           sudo chmod -R 755 rootfs/home/user
 
