@@ -41,9 +41,10 @@ jobs:
           HOME=/home/user
           cd ~
           sudo sed -i 's/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf
-          acu rem set alarm https://github.com/archlinuxarm/PKGBUILDs
+          acu rem set 7Ji https://github.com/7Ji/archrepo/releases/download/\$arch pacman
+          acu rem set chrompp https://github.com/1usOS/PKGBUILDs --branch=chrompp
           acu update
-          acu build alarm/chromium --noconfirm
+          acu build chrompp/chromium-mpp --noconfirm
           END
           sudo chmod -R 755 rootfs/home/user
 
