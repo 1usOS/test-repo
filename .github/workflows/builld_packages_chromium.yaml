@@ -1,4 +1,4 @@
-name: Time to mess with Chromium
+name: Time to mess with MPP
 
 # Controls when the workflow will run
 on:
@@ -42,9 +42,9 @@ jobs:
           cd ~
           sudo sed -i 's/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf
           acu rem set 7Ji https://github.com/7Ji/archrepo/releases/download/aarch64 pacman
-          acu rem set chrompp https://github.com/1usOS/PKGBUILDs --branch=chrompp
+          acu rem set boogie https://github.com/hbiyik/agrrepo
           acu update
-          acu build chrompp/chromium-mpp --noconfirm
+          acu build boogie/firefox-mpp --noconfirm
           END
           sudo chmod -R 755 rootfs/home/user
 
