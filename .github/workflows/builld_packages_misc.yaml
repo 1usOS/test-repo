@@ -1,0 +1,58 @@
+name: Build Arch Linux ARM Packages
+
+# Controls when the workflow will run
+on:
+  # Runs on pushes targeting the default branch
+  #push:
+  #  branches: ["main"]
+  # Run the workflow every Sunday at 00:00 UTC
+  #schedule:
+  #  - cron: '0 0 * * 0'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: write
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+      # Runs a set of commands using the runners shell
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y arch-install-scripts libarchive-tools
+
+      - name: Create Arch Linux ARM environment
+        run: |
+          curl -LO https://raw.githubusercontent.com/kwankiu/archlinux-installer/refs/heads/dev/scripts/arch-bootstrap-chroot
+          bash arch-bootstrap-chroot --rootfs=https://github.com/1usOS/rootfs/releases/download/archlinuxarm/ArchLinuxARM-aarch64-minimal-latest.tar.gz
+
+      - name: (Test) Build Package
+        run: |
+          sudo arch-chroot -u user rootfs /bin/bash <<END
+          HOME=/home/user
+          cd ~
+          sudo sed -i 's/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf
+          cat /etc/makepkg.conf
+          acu rem set misc https://github.com/1usOS/PKGBUILDs --branch=misc
+          acu update
+          acu build misc/arb --noconfirm
+          END
+          sudo chmod -R 755 rootfs/home/user
+
+      - name: Upload to GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+            artifacts: "rootfs/home/user/packages/*/*"
+            tag: "packages"
+            makeLatest: false
+            allowUpdates: true
+            omitBody: true
