@@ -44,6 +44,7 @@ jobs:
           cat /etc/makepkg.conf
           acu rem set misc https://github.com/1usOS/PKGBUILDs --branch=misc
           acu update
+          acu install linux-aarch64-headers --noconfirm
           acu build misc/rtl8851bu-firmware --noconfirm
           END
           sudo chmod -R 755 rootfs/home/user
