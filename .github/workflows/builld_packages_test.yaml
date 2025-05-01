@@ -44,7 +44,7 @@ jobs:
           cat /etc/makepkg.conf
           acu rem set 7Ji https://github.com/7Ji-PKGBUILDs
           acu update
-          acu build 7Ji/linux-aarch64-rockchip-bsp6.1-armbian-git --noconfirm
+          acu build 7Ji/linux-aarch64-rockchip-bsp6.1-armbian-git --branch=5.1 --noconfirm
           acu build 7Ji/linux-firmware-armbian-git --noconfirm
           END
           sudo chmod -R 755 rootfs/home/user
