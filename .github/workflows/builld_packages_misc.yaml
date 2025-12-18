@@ -1,4 +1,4 @@
-name: Build Arch Linux ARM Packages
+name: Build Misc Packages (AArch64)
 
 # Controls when the workflow will run
 on:
