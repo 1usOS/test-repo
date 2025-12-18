@@ -89,7 +89,7 @@ jobs:
         if: env.type == 'gdrive'
         run: |
           echo "Fetching from Google Drive ID ${{ env.url }}"
-          curl -LJO "https://drive.google.com/uc?export=download&id=${{ env.url }}"
+          curl -LJO --create-dirs --output-dir "output" "https://drive.google.com/uc?export=download&id=${{ env.url }}"
       - name: Download Package from HTTP
         if: env.type == 'http'
         run: |
