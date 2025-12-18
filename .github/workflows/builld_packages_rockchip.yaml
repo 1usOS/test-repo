@@ -45,7 +45,7 @@ jobs:
           acu rem set 7Ji https://github.com/7Ji-PKGBUILDs
           acu update
           #acu build 7Ji/linux-aarch64-rockchip-armbian-git --noconfirm
-          acu build 7Ji/linux-firmware-joshua-git --noconfirm
+          acu build 7Ji/linux-firmware-armbian-git --noconfirm
           END
           sudo chmod -R 755 rootfs/home/user
 
