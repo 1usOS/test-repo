@@ -67,6 +67,9 @@ jobs:
             echo "user=$user" >> $GITHUB_ENV
             echo "repo=$repo" >> $GITHUB_ENV
             echo "tag=$tag" >> $GITHUB_ENV
+          elif [[ $package_url == GDRIVE/* ]]; then
+            echo "type=gdrive" >> $GITHUB_ENV
+            echo "url=${package_url#GDRIVE/}" >> $GITHUB_ENV          
           elif [[ $package_url == http://* || $package_url == https://* ]]; then
             echo "type=http" >> $GITHUB_ENV
             echo "url=$package_url" >> $GITHUB_ENV
@@ -82,6 +85,11 @@ jobs:
           tag: "${{ env.tag }}"
           out-file-path: 'output'
           fileName: "${{ env.name }}*.pkg.tar.zst"
+      - name: Download Package from Google Drive
+        if: env.type == 'gdrive'
+        run: |
+          echo "Fetching from Google Drive ID ${{ env.url }}"
+          curl -LJO "https://drive.google.com/uc?export=download&id=${{ env.url }}"
       - name: Download Package from HTTP
         if: env.type == 'http'
         run: |
