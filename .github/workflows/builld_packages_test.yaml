@@ -1,4 +1,4 @@
-name: Build Arch Linux ARM Packages
+name: Build Test Packages (AArch64)
 
 # Controls when the workflow will run
 on:
@@ -44,7 +44,7 @@ jobs:
           cat /etc/makepkg.conf
           acu rem set 7Ji https://github.com/7Ji-PKGBUILDs
           acu update
-          acu build 7Ji/linux-firmware-joshua-git --noconfirm
+          acu build 7Ji/linux-firmware-armbian-git --noconfirm
           END
           sudo chmod -R 755 rootfs/home/user
 
